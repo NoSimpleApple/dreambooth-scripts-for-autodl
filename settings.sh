@@ -11,6 +11,7 @@ export AUTODL_TMP="/root/autodl-tmp"
 # path of baseline model and external vae file
 export BASE_MODEL_PATH="${AUTODL_TMP}/models"
 export EX_VAE_PATH="${BASE_MODEL_PATH}/vae"
+export EX_VAE_FILE="animevae.pt"
 
 # literally and used by the dir name containing converted model
 export BASE_MODEL_NAME="mmk-e_fucked"

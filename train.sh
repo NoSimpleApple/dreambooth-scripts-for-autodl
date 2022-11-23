@@ -3,12 +3,12 @@
 # bash script is a bullshxt
 source settings.sh
 
-export CONVERTOR="repos/diffusers/scripts/convert_diffusers_to_original_stable_diffusion.py"
+export CONVERTOR="repos/diffusers/scripts/convert_original_stable_diffusion_to_diffusers.py"
 export TRAINER="repos/diffusers/examples/dreambooth/train_dreambooth.py"
 export BACK_CONVERTOR="repos/diffusers/scripts/convert_diffusers_to_original_stable_diffusion.py"
 
 py="env python"
-base_model="$BASE_MODEL_PATH}/${BASE_MODEL_NAME}.ckpt"
+base_model="${BASE_MODEL_PATH}/${BASE_MODEL_NAME}.ckpt"
 
 mkdir -p "$OUTPUT_PATH"
 mkdir -p "$BASE_MODEL_PATH"
@@ -52,7 +52,7 @@ EOF
     $py $CONVERTOR \
         --checkpoint_path "$base_model" \
         --original_config_file "$BASE_MODEL_CONF_PATH" \
-        --vae_path "$EX_VAE_PATH"  \
+        --vae_path "${EX_VAE_PATH}/${EX_VAE_FILE}"  \
         --dump_path "$DUMP_MODEL_PATH" \
         --scheduler_type ddim
                     
