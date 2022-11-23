@@ -64,13 +64,13 @@ EOF
 
 convert_back() {
     local id step
-
-    cat <<'EOF'
-####################################
-~~~~    Stim comeing soon...    ~~~~
-####################################
-EOF
     
+    cat <<'EOF'
+#####################################
+~~~~    Drugs comeing soon...    ~~~~
+#####################################
+EOF
+
     while true; do
         echo -ne "(available sorted by time: $(ls -Ct $OUTPUT_PATH))\n>>> training id: "
         read -r id
@@ -91,26 +91,28 @@ EOF
         fi
     done
     
-    drug_file_path="$DRUG_PATH/$(date --rfc-3339="date")/${DRUG_FILENAME_PREFIX}${step}.ckpt"
+    drug_file_path="$DRUG_PATH/$(date --rfc-3339="date")"
+    mkdir -p $drug_file_path
     
     $py $BACK_CONVERTOR \
             --model_path "$diffuser_model_path" \
-            --checkpoint_path "$drug_file_path" \
+            --checkpoint_path "$drug_file_path/${DRUG_FILENAME_PREFIX}${step}.ckpt" \
             --unet_half
+    echo "Coverted.."
 }
 
 train() {
-    if [[ ! -d $DUMP_MODEL_PATH ]]; then convert2diffiser; fi
+    if [[ ! -d $DUMP_MODEL_PATH ]]; then convert2diffiser; else echo "Found baseline: $DUMP_MODEL_PATH"; fi
     
     # See https://github.com/CCRcmcpe/diffusers/blob/main/examples/dreambooth/modules/args.py
     # for full parameter list
-
+    
     cat <<'EOF'
 ###############################
 ~~~~     Enchanting...     ~~~~
 ###############################
 EOF
-
+    
     accelerate launch $TRAINER \
         --pretrained_model_name_or_path "$DUMP_MODEL_PATH" \
         --pretrained_vae_name_or_path "${DUMP_MODEL_PATH}/vae" \
