@@ -11,8 +11,8 @@ py="env python"
 base_model="$BASE_MODEL_PATH}/${BASE_MODEL_NAME}.ckpt"
 
 mkdir -p "$OUTPUT_PATH"
-mkdir -p "$EX_VAE_PATH"
 mkdir -p "$BASE_MODEL_PATH"
+mkdir -p "$EX_VAE_PATH"
 mkdir -p "$DRUG_PATH"
 [[ $(env conda >/dev/null 2>&1) == "127" ]] && [[ -e "$EX_VENV_PATH/bin/activate" ]] && source "$EX_VENV_PATH/bin/activate" >/dev/null 2>&1
 
@@ -71,25 +71,29 @@ convert_back() {
 #####################################
 EOF
 
-    while true; do
-        echo -ne "(available sorted by time: $(ls -Ct $OUTPUT_PATH))\n>>> training id: "
-        read -r id
-        # may be unstable coz of diff among PCs
-        echo -ne "(available: $([[ -d "${OUTPUT_PATH}/${id}" ]] && \
-            for i in $(ls -Cd ${OUTPUT_PATH}/${id}/[0-9]* 2>/dev/nul); do \
-            basename "$i" | tr "\n" " "; done))\n>>> target step: "
-        read -r step
+    local ids="$(ls -Ct $OUTPUT_PATH)"
         
+    echo -ne "(available sorted by time: $ids)\n>>> training id (empty to the latest): "
+    read -r id  
+    # set the newest default
+    [[ -z $id ]] && id=${ids[0]}
+        
+    # may be unstable coz of diff among PCs
+    local steps="$([[ -d "${OUTPUT_PATH}/${id}" ]] && \
+        for i in $(ls -Cd ${OUTPUT_PATH}/${id}/[0-9]* 2>/dev/nul); do basename "$i" | tr "\n" " "; done)"
+        
+    echo -ne "(available: $steps)\n>>> target step (exp: 200 or 100 200): "
+    read -ra steps
+        
+    for step in "${steps[@]}"; do
         diffuser_model_path="${OUTPUT_PATH}/${id:-0}/${step:-0}"
         
         if [[ ! -d $diffuser_model_path ]]; then
-            echo "model not found, retry plz.."
+            echo "path $diffuser_model_path not found"
             continue
         else
             echo "well, choosing path: ${diffuser_model_path}"
-            break
         fi
-    done
     
     drug_file_path="$DRUG_PATH/$(date --rfc-3339="date")"
     mkdir -p $drug_file_path
@@ -99,6 +103,7 @@ EOF
             --checkpoint_path "$drug_file_path/${DRUG_FILENAME_PREFIX}${step}.ckpt" \
             --unet_half
     echo "Coverted.."
+    done
 }
 
 train() {
@@ -124,9 +129,31 @@ EOF
         # --run_id "test" \  
 }
 
+clean() {
+    cat <<'EOF'
+###########################
+~~~~     Wiping...     ~~~~
+###########################
+EOF
+    echo -ne "WARNING: all relevant file will be remove, you know about your risk?\n[y or other]: "
+    read -r yn
+    if [[ "$yn" != "y" ]]; then 
+        echo "Wiping cancelled..."
+        exit 0; 
+    fi
+    
+    local path_list=($OUTPUT_PATH)
+    for i in ${path_list[@]}; do
+        rm -rf "$i"
+    done
+    
+    echo "Current autodl-tmp usage: $(du -sh ${AUTODL_TMP})"
+    echo "Wow, such an empty.."
+}
+
 # entry
 PS3="Show me your witchcraft: "
-select option in train back all cancel
+select option in train back all clean cancel
 do
     echo "Good. "
     case $option in
@@ -134,19 +161,18 @@ do
             train
             sleep 10
             convert_back
-            break
-            ;;
+            break ;;
         back)
             convert_back
-            break
-            ;;
+            break ;;
         train)
             train
-            break
-            ;;
+            break ;;
+        clean)
+            clean
+            break ;;
         cancel)
             echo "cancelling..done."
-            break
-            ;;
+            break ;;
     esac
 done
