@@ -43,6 +43,12 @@ if [[ ! -e $base_model ]];
 fi
 
 convert2diffiser() {
+    cat <<'EOF'
+###################################
+~~~~    Molding your wand...   ~~~~
+###################################
+EOF
+
     $py $CONVERTOR \
         --checkpoint_path "$base_model" \
         --original_config_file "$BASE_MODEL_CONF_PATH" \
@@ -58,6 +64,12 @@ convert2diffiser() {
 
 convert_back() {
     local id step
+
+    cat <<'EOF'
+####################################
+~~~~    Stim comeing soon...    ~~~~
+####################################
+EOF
     
     while true; do
         echo -ne "(available sorted by time: $(ls -Ct $OUTPUT_PATH))\n>>> training id: "
@@ -92,6 +104,13 @@ train() {
     
     # See https://github.com/CCRcmcpe/diffusers/blob/main/examples/dreambooth/modules/args.py
     # for full parameter list
+
+    cat <<'EOF'
+###############################
+~~~~     Enchanting...     ~~~~
+###############################
+EOF
+
     accelerate launch $TRAINER \
         --pretrained_model_name_or_path "$DUMP_MODEL_PATH" \
         --pretrained_vae_name_or_path "${DUMP_MODEL_PATH}/vae" \
@@ -107,11 +126,11 @@ train() {
 PS3="Show me your witchcraft: "
 select option in train back all cancel
 do
-    echo "good. "
+    echo "Good. "
     case $option in
         all)
             train
-            sleep 3
+            sleep 10
             convert_back
             break
             ;;
