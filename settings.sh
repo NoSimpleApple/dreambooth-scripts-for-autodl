@@ -41,3 +41,17 @@ export TRAIN_CONFIG="base_config.yaml"
 export TO_EPOCH=50
 # will override $TO_EPOCH
 export TO_STEPS=3500
+
+# which section contains in ckpt when converting, y/n
+export PAK_TTE=n
+export PAK_VAE=n
+
+# precision for each section
+export PAK_TTE_DTYPE=fp16
+export PAK_UNET_DTYPE=fp16
+export PAK_VAE_DTYPE=fp32
+
+# options when converting reversely, y/n
+export BAK_USE_EMA=n
+export BAK_SD_TYPE=ddim
+export BAK_HALF_UNET=y

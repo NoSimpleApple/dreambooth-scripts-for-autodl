@@ -49,12 +49,17 @@ convert2diffiser() {
 ###################################
 EOF
 
+# scheduler_type: pndm', 'lms', 'ddim
+
+
     $py $CONVERTOR \
         --checkpoint_path "$base_model" \
         --original_config_file "$BASE_MODEL_CONF_PATH" \
         --vae_path "${EX_VAE_PATH}/${EX_VAE_FILE}"  \
         --dump_path "$DUMP_MODEL_PATH" \
-        --scheduler_type ddim
+        --scheduler_type ddim 
+        # --extract_ema \
+        # --half-unet
                     
     if [[ ! -d $DUMP_MODEL_PATH ]]; then
         echo "Cannnot convert ${base_model} into diffuser format."
@@ -100,8 +105,13 @@ EOF
     
     $py $BACK_CONVERTOR \
             --model_path "$diffuser_model_path" \
-            --checkpoint_path "$drug_file_path/${DRUG_FILENAME_PREFIX}${step}.ckpt" \
-            --unet_half
+            --checkpoint_path "$drug_file_path/${DRUG_FILENAME_PREFIX}${step}.ckpt"
+            # --text_encoder
+            # --text_encoder_dtype $PAK_TTE_DTYPE
+            # --vae
+            # --vae_dtype $PAK_VAE_DTYPE
+            # --unet_dtype $PAK_UNET_DTYPE
+            # --unet_half
     echo "Coverted.."
     done
 }
@@ -123,7 +133,7 @@ EOF
         --pretrained_vae_name_or_path "${DUMP_MODEL_PATH}/vae" \
         --output_dir "$OUTPUT_PATH" \
         --config "$TRAIN_CONFIG" \
-        --train_n_steps="$TO_STEPS" \
+        --train_n_steps="$TO_STEPS" 
         # --train_to_epochs="$TO_EPOCH" \
         # -project "test" \
         # --run_id "test" \  
