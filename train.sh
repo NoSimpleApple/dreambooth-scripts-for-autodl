@@ -85,7 +85,7 @@ EOF
         
     # may be unstable coz of diff among PCs
     local steps="$([[ -d "${OUTPUT_PATH}/${id}" ]] && \
-        for i in $(ls -Cd ${OUTPUT_PATH}/${id}/[0-9]* 2>/dev/nul); do basename "$i" | tr "\n" " "; done)"
+        for i in $(ls -Cd ${OUTPUT_PATH}/${id}/[0-9]* 2>/dev/null); do basename "$i" | tr "\n" " "; done)"
         
     echo -ne "(available: $steps)\n>>> target step (exp: 200 or 100 200): "
     read -ra steps
